@@ -11,7 +11,7 @@
 #include <signal.h>// signal() 
 #include <unistd.h>    // read(), write(), close() ，dup2()
 
-#define buffersize 256
+#define BUFFERSIZE 256
 
 
 int  server_socket;
@@ -24,7 +24,7 @@ char order_check[20];
 char item_check[20];
 char num_check[10];
 int  order_num[2];
-char send_data[buffersize],receive[buffersize],order_temp[buffersize];
+char send_data[BUFFERSIZE],receive[BUFFERSIZE],order_temp[BUFFERSIZE];
 
 void sigint_handler(int signo) {
     close(server_socket);
@@ -75,9 +75,9 @@ int main(int argc, char *argv[]) {
         order_num[0]=0;
         order_num[1]=0;
         
-        while((recv(client_socket,receive,buffersize,0))){
+        while((recv(client_socket,receive,BUFFERSIZE,0))){
             int i=0;
-            memset(send_data,0, buffersize);
+            memset(send_data,0, BUFFERSIZE);
             //printf("%s\n",receive);
 
             if(strcmp(receive,"cancel")==0){
@@ -85,22 +85,22 @@ int main(int argc, char *argv[]) {
             }
             else if(strcmp(receive,"shop list")==0){
                 sprintf(send_data,"Dessert shop:3km\n- cookie:$60|cake:$80\nBeverage shop:5km\n- tea:$40|boba:$70\nDiner:8km\n- fried-rice:$120|Egg-drop-soup:$50\n");
-                send(client_socket, send_data, buffersize, 0);
+                send(client_socket, send_data, BUFFERSIZE, 0);
             }
 
             else if(strcmp(receive,"confirm")==0){
                 //printf("%d\n",price);
                 if (price==0){        
                     sprintf(send_data,"Please order some meals\n");
-                    send(client_socket, send_data, buffersize, 0);    
+                    send(client_socket, send_data, BUFFERSIZE, 0);    
 
                 }else{
                     sprintf(send_data,"Please wait a few minutes...\n");
-                    send(client_socket, send_data, buffersize, 0);
-                    memset(send_data,0, buffersize);
+                    send(client_socket, send_data, BUFFERSIZE, 0);
+                    memset(send_data,0, BUFFERSIZE);
                     sleep(flag);
                     sprintf(send_data,"Delivery has arrived and you need to pay %d$\n",price);
-                    send(client_socket, send_data, buffersize, 0);
+                    send(client_socket, send_data, BUFFERSIZE, 0);
                     break;
                     
                 }
@@ -203,11 +203,11 @@ int main(int argc, char *argv[]) {
                         price=120*order_num[0]+50*order_num[1];
                     }   
                     else{
-                        send(client_socket, order_temp, buffersize, 0);
+                        send(client_socket, order_temp, BUFFERSIZE, 0);
                         continue;
                     }   
                     strcpy(send_data,order_temp);
-                    send(client_socket, send_data, buffersize, 0);
+                    send(client_socket, send_data, BUFFERSIZE, 0);
                          
                 }
             }  

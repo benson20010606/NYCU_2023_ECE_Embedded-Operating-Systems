@@ -43,8 +43,9 @@ int main(int argc, char *argv[]) {
         perror("socket()");
         exit(EXIT_FAILURE);
     }
-    signal(SIGINT, sigint_handler);
-    signal(SIGCHLD, handler);
+    signal(SIGINT, sigint_handler); // 註冊  signal 
+     
+    signal(SIGCHLD, handler); // 註冊  signal 
     
     int yes = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));

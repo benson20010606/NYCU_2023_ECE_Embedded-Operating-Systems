@@ -12,9 +12,9 @@
 #include <unistd.h>    // read(), write(), close() ，dup2()
 #include <pthread.h>
 #include <sys/sem.h>
-#define buffersize 256
-#define my_key1 12345
-#define my_key2 67890
+#define BUFFERSIZE 256
+#define MYKEY1 12345
+#define MYKEY2 67890
 int  server_socket;
 int delivery_waiting_time[2]={0};
 int sem1,sem2;
@@ -79,9 +79,9 @@ void* counter(){
 
 void* Delivery_platform(void* socket){   
         
-        char receive[buffersize]={0};
+        char receive[BUFFERSIZE]={0};
         char order_check[20]={0};char item_check[20]={0};
-        int  order_num[2]={0};char send_data[buffersize]={0},order_temp[buffersize]={0}; 
+        int  order_num[2]={0};char send_data[BUFFERSIZE]={0},order_temp[BUFFERSIZE]={0}; 
         int sock=*(int*)socket;
         
         int flag=0;
@@ -90,9 +90,9 @@ void* Delivery_platform(void* socket){
         order_num[1]=0;
         int who =2;
         
-        while((recv(sock,receive,buffersize,0))){
+        while((recv(sock,receive,BUFFERSIZE,0))){
             
-            memset(send_data,0, buffersize);
+            memset(send_data,0, BUFFERSIZE);
             printf("\nthreadid:%lu\n",pthread_self());
             printf("fd:%d\n",sock);
             printf("input:%s",receive);
@@ -113,9 +113,9 @@ void* Delivery_platform(void* socket){
                             V(sem2);
                         }
                         sprintf(send_data,"Please wait a few minutes...\n");
-                        send(sock, send_data, buffersize, 0);
+                        send(sock, send_data, BUFFERSIZE, 0);
                         printf("out:%s\n",send_data);
-                        memset(send_data,0, buffersize);
+                        memset(send_data,0, BUFFERSIZE);
                         printf("\nfd:%d\nsec:%d\n",sock,temp);
                         for(int i=temp;i>0;i--){
                             sleep(1);
@@ -126,19 +126,19 @@ void* Delivery_platform(void* socket){
 
 
                         sprintf(send_data,"Delivery has arrived and you need to pay %d$\n",price);
-                        send(sock, send_data, buffersize, 0);
+                        send(sock, send_data, BUFFERSIZE, 0);
                         printf("\nfd:%d\nout:%s\n",sock,send_data);
                         break;
             }
             else if(strcmp(receive,"shop list\n")==0){
                 sprintf(send_data,"Dessert shop:3km\n- cookie:$60|cake:$80\nBeverage shop:5km\n- tea:$40|boba:$70\nDiner:8km\n- fried-rice:$120|Egg-drop-soup:$50\n");
-                send(sock, send_data, buffersize, 0);
+                send(sock, send_data, BUFFERSIZE, 0);
                 printf("out:%s\n",send_data);
             }
             else if(strcmp(receive,"confirm\n")==0){
                 if (price==0){        
                     sprintf(send_data,"Please order some meals\n");
-                    send(sock, send_data, buffersize, 0);
+                    send(sock, send_data, BUFFERSIZE, 0);
                     printf("out:%s\n",send_data);    
                 }else{
                     int temp_count=0;
@@ -166,16 +166,16 @@ void* Delivery_platform(void* socket){
                         }
                 
                         sprintf(send_data,"Please wait a few minutes...\n");
-                        send(sock, send_data, buffersize, 0);
+                        send(sock, send_data, BUFFERSIZE, 0);
                         printf("fd:%d\nwho:%d\nsec:%d\nreal:%d\nflag:%d\n",sock,who,temp_count,delivery_waiting_time[who],flag);
                         printf("out:%s\n",send_data);
-                        memset(send_data,0, buffersize);
+                        memset(send_data,0, BUFFERSIZE);
                         for(int i=temp_count;i>0;i--){
                             sleep(1);
                         }
                       
                         sprintf(send_data,"Delivery has arrived and you need to pay %d$\n",price);
-                        send(sock, send_data, buffersize, 0);
+                        send(sock, send_data, BUFFERSIZE, 0);
                         printf("\nfd:%d\nout:%s\n",sock,send_data);
                         break;
                     }else{
@@ -187,9 +187,9 @@ void* Delivery_platform(void* socket){
                             temp_count=temp2;
                         }
                         printf("fd:%d\nwho:%d\nsec:%d\nflag:%d",sock,who,temp_count,flag);
-                        memset(send_data,0, buffersize);
+                        memset(send_data,0, BUFFERSIZE);
                         sprintf(send_data,"Your delivery will take a long time, do you want to wait?\n");
-                        send(sock, send_data, buffersize, 0);
+                        send(sock, send_data, BUFFERSIZE, 0);
                         printf("out:%s\n",send_data);
                     }    
                 }
@@ -279,13 +279,13 @@ void* Delivery_platform(void* socket){
                         price=120*order_num[0]+50*order_num[1];
                     }   
                     else{
-                        send(sock, order_temp, buffersize, 0);
+                        send(sock, order_temp, BUFFERSIZE, 0);
                         printf("out:%s\n",order_temp);
                        
                         continue;
                     }   
                     strcpy(send_data,order_temp);
-                    send(sock, send_data, buffersize, 0);
+                    send(sock, send_data, BUFFERSIZE, 0);
                     printf("out:%stod:%d %d\n",send_data,order_num[0],order_num[1]);
                    
                 }
@@ -303,15 +303,15 @@ void* Delivery_platform(void* socket){
 void sigint_handler(int signo) {
     
     if(semctl(sem1,0,IPC_RMID,0)<0){
-        fprintf (stderr, " unable to remove semaphore1 %d\n", my_key1);
+        fprintf (stderr, " unable to remove semaphore1 %d\n", MYKEY1);
         exit(1);  
     }
-    printf("\nSemaphore1 %d has been remove\n", my_key1);
+    printf("\nSemaphore1 %d has been remove\n", MYKEY1);
     if(semctl(sem2,0,IPC_RMID,0)<0){
-        fprintf (stderr, " unable to remove semaphore2 %d\n", my_key2);
+        fprintf (stderr, " unable to remove semaphore2 %d\n", MYKEY2);
         exit(1);  
     }
-    printf("\nSemaphore2 %d has been remove\n", my_key2);
+    printf("\nSemaphore2 %d has been remove\n", MYKEY2);
     close(server_socket);
     exit(0);
 }
@@ -320,9 +320,9 @@ int main(int argc, char *argv[]) {
     int  client_socket;
     signal(SIGINT, sigint_handler);
 /////////////semaohore////////////////////////
-    sem1=semget(my_key1,1,IPC_CREAT | IPC_EXCL | 0666);
+    sem1=semget(MYKEY1,1,IPC_CREAT | IPC_EXCL | 0666);
     if(sem1<0){
-        fprintf(stderr,"cannot find semaohore1 %d :%s\n",my_key1,strerror(errno));
+        fprintf(stderr,"cannot find semaohore1 %d :%s\n",MYKEY1,strerror(errno));
         exit(1);
     }
     if ( semctl(sem1, 0, SETVAL, 1) < 0 )
@@ -331,9 +331,9 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    sem2=semget(my_key2,1,IPC_CREAT | IPC_EXCL | 0666);
+    sem2=semget(MYKEY2,1,IPC_CREAT | IPC_EXCL | 0666);
     if(sem2<0){
-        fprintf(stderr,"cannot find semaohore2 %d :%s\n",my_key2,strerror(errno));
+        fprintf(stderr,"cannot find semaohore2 %d :%s\n",MYKEY2,strerror(errno));
         exit(1);
     }
     if ( semctl(sem2, 0, SETVAL, 1) < 0 )

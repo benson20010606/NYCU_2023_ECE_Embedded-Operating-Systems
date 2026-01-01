@@ -12,8 +12,8 @@
 #include <unistd.h>    // read(), write(), close() ，dup2()
 #include <sys/sem.h>
 
-#define my_key 11223344
-#define buffersize 128
+#define MYKEY 11223344
+#define BUFFERSIZE 128
 
 int sem;
 
@@ -54,11 +54,11 @@ int main(int argc, char *argv[]) {
     }
     int amount=atoi(argv[4]);
     int times=atoi(argv[5]);
-    char send_buf[buffersize]={0};
-    sem=semget(my_key,1,0);
+    char send_buf[BUFFERSIZE]={0};
+    sem=semget(MYKEY,1,0);
     
     if (sem < 0) {
-    fprintf (stderr," cannot find semaphore %d: %s\n", my_key, strerror(errno));
+    fprintf (stderr," cannot find semaphore %d: %s\n", MYKEY, strerror(errno));
     exit(1);
     }
 
@@ -87,15 +87,15 @@ int main(int argc, char *argv[]) {
         P(sem);
         sprintf(send_buf,"%s %d",argv[3],amount);
         //printf("%d\n",count);
-        send(socket_fd, send_buf, buffersize, 0);
-        memset(send_buf,0,buffersize);
+        send(socket_fd, send_buf, BUFFERSIZE, 0);
+        memset(send_buf,0,BUFFERSIZE);
         V(sem);
         usleep(1);
       
     }
     sprintf(send_buf,"exit");
-    send(socket_fd, send_buf, buffersize, 0);
-    memset(send_buf,0,buffersize);
+    send(socket_fd, send_buf, BUFFERSIZE, 0);
+    memset(send_buf,0,BUFFERSIZE);
     
     close(socket_fd);
     

@@ -13,8 +13,8 @@
 #include <sys/sem.h>
 #include <pthread.h>
 
-#define buffersize 128
-#define my_key 11223344
+#define BUFFERSIZE 128
+#define MYKEY 11223344
 #define SEM_MODE 0666
 int  server_socket;
 int  client_socket;
@@ -27,20 +27,20 @@ void sigint_handler(int signo) {
     close(server_socket);
     //pthread_mutex_destroy(&mutex);
     if(semctl(s,0,IPC_RMID,0)<0){
-        fprintf (stderr, " unable to remove semaphore %d\n", my_key);
+        fprintf (stderr, " unable to remove semaphore %d\n", MYKEY);
         exit(1);  
     }
-    printf("\nSemaphore %d has been remove\n", my_key);
+    printf("\nSemaphore %d has been remove\n", MYKEY);
     printf("socket  has been close\n");
     exit(0);
 }
 
 
 void* bank(void* socket){   
-        char receive[buffersize]={0};
+        char receive[BUFFERSIZE]={0};
         char what_to_do[10]={0}; 
         int sock=*(int*)socket;
-        while((recv(sock,receive,buffersize,0))){
+        while((recv(sock,receive,BUFFERSIZE,0))){
             //pthread_mutex_lock(&mutex);
             int money=0;
             //printf("%s\n",receive);
@@ -76,9 +76,9 @@ int main(int argc, char *argv[]) {
     }
 
 
-    s=semget(my_key,1,IPC_CREAT | IPC_EXCL | SEM_MODE);
+    s=semget(MYKEY,1,IPC_CREAT | IPC_EXCL | SEM_MODE);
     if(s<0){
-        fprintf(stderr,"cannot find semaohore %d :%s\n",my_key,strerror(errno));
+        fprintf(stderr,"cannot find semaohore %d :%s\n",MYKEY,strerror(errno));
         exit(1);
     }
     if ( semctl(s, 0, SETVAL, 1) < 0 )
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Unable to initialize Sem: %s\n", strerror(errno));
         exit(0);
     }
-    //printf("Semaphore %d has been created & initialized to 1\n", my_key);
+    //printf("Semaphore %d has been created & initialized to 1\n", MYKEY);
 
 
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {

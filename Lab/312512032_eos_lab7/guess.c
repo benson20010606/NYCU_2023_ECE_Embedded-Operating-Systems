@@ -17,9 +17,9 @@ todo:撰寫 timer，每隔一秒讀取 result 變數的結果，計算出該回�
 typedef struct {
     int guess;
     char result[8];
-}data;
+}data_t;
 
-data *My_data,*Shm_data;
+data_t *my_data,*shm_data;
 int shmid;
 int upper_bound,guess;
 int lower_bound=1;
@@ -29,17 +29,17 @@ pid_t pid;
 
 void guess_handler (int signum)
 {
-    if (strcmp(My_data->result, "smaller") == 0){
+    if (strcmp(my_data->result, "smaller") == 0){
         upper_bound=guess-1;
-    }else if (strcmp(My_data->result, "bigger") == 0){
+    }else if (strcmp(my_data->result, "bigger") == 0){
         lower_bound=guess+1;
 
-    }else if (strcmp(My_data->result, "bingo") == 0){
-        shmdt(Shm_data); 
+    }else if (strcmp(my_data->result, "bingo") == 0){
+        shmdt(shm_data); 
         exit(0);
     }
     guess=(upper_bound+lower_bound)/2;
-    My_data->guess=guess;
+    my_data->guess=guess;
     printf("[game] Guess  (%d~%d) :%d \n",lower_bound,upper_bound,guess);
     kill(pid, SIGUSR1);
 }
@@ -60,18 +60,18 @@ int main(int argc, char *argv[])
     pid=atoi(argv[3]);
 
     /* Create the segment */
-    if ((shmid = shmget(key,sizeof(My_data),  0666)) < 0) {
+    if ((shmid = shmget(key,sizeof(my_data),  0666)) < 0) {
         perror("shmget");
         exit(1);
     }
     /* Now we attach the segment to our data space */
-    if ((Shm_data = (data*)shmat(shmid, NULL, 0)) == (data*) -1) {
+    if ((shm_data = (data*)shmat(shmid, NULL, 0)) == (data*) -1) {
         perror("shmat");
         exit(1);
     }
     printf("guess.c attach the share memory created by game.c \n");
     /* Now put some things into the memory for the other process to read */
-    My_data=Shm_data;
+    my_data=shm_data;
 
 
     /* Install timer_handler as the signal handler for SIGVTALRM */
