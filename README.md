@@ -69,7 +69,7 @@ Goal: Implementing socket server useing  C.
 Continuing from HW2, modify the server to a multi-client version using processes or threads, and ensure it correctly handles race conditions.  
 Goal: use threads,Semaphores and Timer to implement a multi-client version of a socket server.  
 
-## Final Project : Smart parking management system
+## Final Project : Smart parking management system ()
 
 ### Contributor 
 School : National Yang Ming Chiao Tung University   
@@ -113,7 +113,26 @@ Use multi-process handling to process the multiple vehicle behaviors (entering, 
 #### client.py
 Use multi-processing to simultaneously read information from multiple cameras, identify Regions of Interest (ROI) to reduce computation, and use Tesseract to recognize license plate numbers. Simulate vehicle entry, exit, and payment, and communicate vehicle information with server.c using sockets.
 
-### 
+###  備註與待改善項目
+本專題主要目的為整合嵌入式作業系統課程中所學之多行程、Socket、Shared Memory、Semaphore、Signal 以及 Linux Character Device Driver 等概念，並完成一個可展示的智慧停車場管理系統原型
+目前系統已能完成基本流程，包括車牌辨識事件傳送、車輛入場、車位分配、付款、出場檢查，以及透過 Device Driver 控制 LED 顯示車位狀態。然而，程式仍屬於課程專題與 Demo 型實作
+
+後續若要進一步改善，可針對以下方向強化：
+
+1. 邊界條件與錯誤處理
+加強陣列邊界檢查、Socket 傳輸錯誤處理、系統呼叫失敗處理，以及輸入資料格式檢查。
+
+2. Shared Memory 同步機制
+目前主要針對共享資料更新區段使用 Semaphore 保護，後續可進一步統一所有 Shared Memory 的讀寫同步策略，避免多行程同時存取造成狀態不一致。
+
+3. Driver 端安全性
+Character Device Driver 可增加 user space 輸入長度、GPIO index 與 LED value 的檢查，避免錯誤輸入造成 kernel 端資料越界或 GPIO 操作錯誤。
+
+4. 資料紀錄完整性
+目前系統主要維護即時停車狀態與總收入，若要更完整，可新增交易紀錄，例如入場時間、付款時間、離場時間、付款金額與歷史紀錄檔。
+
+5. 系統穩定性與可維護性
+可進一步整理重複程式碼、抽出共用函式、定義明確的車輛狀態，並改善程式結構，使系統更容易維護與擴充。
 
 
 

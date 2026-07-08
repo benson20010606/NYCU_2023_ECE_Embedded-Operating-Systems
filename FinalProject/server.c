@@ -22,6 +22,8 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 
+
+#define NUM_SPACES 16
 #define SEM_MODE 0666 /* rw(owner)-rw(group)-rw(other) permission */
 #define SEM_KEY_MUTEX 1122334454
 #define SEM_KEY_COUNTING 45510
@@ -86,11 +88,14 @@ int entry(int fd, int entry_num, char *plate) {  // Ingram edit
     char drv_buf[2] = {0};
     
     int x;
-    for(x= 0; x <= 16; x++){
+    int found = -1;
+    for(x= 0; x < NUM_SPACES ; x++){
         if(strcmp(car[x].licence_plate, plate) == 0){
-                break;
+            found=x;
+            break;
         }
-    }if(x <16){
+    }
+    if(found != -1){
         printf("already parked\n\n\n\n=====================\n\n");
         sprintf(buf, "already parked\n");
         send(fd, buf, 256,0);
@@ -204,21 +209,24 @@ int exitpark(int fd, char *plate){
     
     
     int x;
-    for(x= 0; x <= 16; x++){
+    int find =-1;
+    for(x= 0; x < NUM_SPACES; x++){
         if(strcmp(car[x].licence_plate, plate) == 0){
+            find=x;
             break;
         }
-    }if(x >=16){
+    }if(find ==-1){
         printf("Car doesn't exist!!\n\n\n\n=====================\n\n");
         sprintf(buf, "Car doesn't exist\n");
         send(fd, buf, 256,0);
         close(fd);
-        return 0;}
+        return 0;
+    }
     
     
     
     
-    for(int i = 0; i <= 16; i++){
+    for(int i = 0; i < NUM_SPACES; i++){
         if(strcmp(car[i].licence_plate, plate) == 0){
             pos = i;
             break;
@@ -287,16 +295,18 @@ void payment(int fd, char *plate){
     /**************** Critical Section *****************/
 
         int i;
-        for(i = 0; i <= 16; i++){
+        for(i = 0; i < NUM_SPACES; i++){
             if(strcmp(car[i].licence_plate, plate) == 0){
                 break;
             }
         }
         
+        
+        if(i < NUM_SPACES){
         time_t t = time(NULL);
         time_t tpass = t - car[i].entry_t;
         car[i].pay_t = t;
-        if(i < 16){
+      
             if(car[i].elec){
                 fee = 30*(tpass/30 + 1);    //30$ per 30 min for electric car
             }
@@ -517,7 +527,7 @@ int main(int argc, char *argv[]){
     }
 
     /* Create the segment for cash */
-    if ((shmid_cash = shmget(SHM_KEY_CASH, 1, IPC_CREAT | 0666)) < 0) {
+    if ((shmid_cash = shmget(SHM_KEY_CASH, sizeof(int), IPC_CREAT | 0666)) < 0) {
         perror("shmget");
         exit(1);
     }
@@ -528,7 +538,7 @@ int main(int argc, char *argv[]){
     }
 
     /* Create the segment for parking space, Ingram edit */
-    if ((shmid_space = shmget(SHM_KEY_SPACE, 16 * sizeof(int), IPC_CREAT | 0666)) < 0) {
+    if ((shmid_space = shmget(SHM_KEY_SPACE, NUM_SPACES* sizeof(int), IPC_CREAT | 0666)) < 0) {
         perror("shmget");
         exit(1);
     }
@@ -555,7 +565,7 @@ int main(int argc, char *argv[]){
 
     char ipBuf[256] = {};    // Message received
     // char Buf[256] = {};
-        for(int i=0;i<16;i++) {
+        for(int i=0;i<NUM_SPACES;i++) {
         printf("hihi\n");
         drv_fd = open("/dev/etx_device", O_RDWR); // file descriptor
         drv_buf[0] = (char)i;

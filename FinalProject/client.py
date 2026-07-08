@@ -92,7 +92,7 @@ def process_camera(path,windows_name,window_x,window_y, server_address, server_p
                             s.close()
                             thread=threading.Thread(target=PAY,args=(txt,server_address, server_port,lock))
                             thread.start()
-                        elif "already parked":
+                        elif "already parked" in reply :
                             print(reply)
                             s.close()
                             
